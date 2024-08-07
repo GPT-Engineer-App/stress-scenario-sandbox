@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Cat, Heart, Info, Paw, ArrowRight, Star, Moon, Sun } from "lucide-react";
+import { Cat, Heart, Info, Paw, ArrowRight, Star, Moon, Sun, Fish, Gift } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -9,6 +9,8 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { Progress } from "@/components/ui/progress";
 import { Switch } from "@/components/ui/switch";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { useToast } from "@/components/ui/use-toast";
 
 const catBreeds = [
   { name: "Siamese", description: "Vocal and social cats known for their distinctive color points.", image: "https://upload.wikimedia.org/wikipedia/commons/2/25/Siam_lilacpoint.jpg" },
@@ -31,6 +33,8 @@ const Index = () => {
   const [currentFactIndex, setCurrentFactIndex] = useState(0);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [catHappiness, setCatHappiness] = useState(50);
+  const [treats, setTreats] = useState(0);
+  const { toast } = useToast();
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -39,6 +43,16 @@ const Index = () => {
     }, 5000);
     return () => clearInterval(interval);
   }, []);
+
+  const handleGiveTreat = () => {
+    setTreats(treats + 1);
+    setCatHappiness(Math.min(catHappiness + 10, 100));
+    toast({
+      title: "Treat given!",
+      description: "Your cat is purring with delight!",
+      duration: 2000,
+    });
+  };
 
   return (
     <div className={`min-h-screen transition-colors duration-300 ${isDarkMode ? 'bg-gradient-to-b from-gray-900 to-purple-900 text-white' : 'bg-gradient-to-b from-purple-100 to-pink-100'} p-8`}>
@@ -74,23 +88,38 @@ const Index = () => {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5, delay: 0.2 }}
         >
-          <img
+          <motion.img
             src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Cat03.jpg/1200px-Cat03.jpg"
             alt="A cute cat"
             className="mx-auto object-cover w-full h-[600px] rounded-xl shadow-2xl"
+            whileHover={{ scale: 1.05 }}
+            transition={{ type: "spring", stiffness: 300 }}
           />
           <div className="absolute bottom-4 right-4 flex items-center space-x-4">
-            <Button 
-              className="bg-red-500 hover:bg-red-600 text-white"
-              onClick={() => setLikes(likes + 1)}
+            <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+              <Button 
+                className="bg-red-500 hover:bg-red-600 text-white"
+                onClick={() => setLikes(likes + 1)}
+              >
+                <Heart className="mr-2 h-4 w-4" /> Like ({likes})
+              </Button>
+            </motion.div>
+            <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+              <Button 
+                className="bg-yellow-500 hover:bg-yellow-600 text-white"
+                onClick={handleGiveTreat}
+              >
+                <Fish className="mr-2 h-4 w-4" /> Give Treat ({treats})
+              </Button>
+            </motion.div>
+            <motion.div 
+              className="bg-white/80 backdrop-blur-sm p-2 rounded-lg flex items-center"
+              whileHover={{ scale: 1.05 }}
             >
-              <Heart className="mr-2 h-4 w-4" /> Like ({likes})
-            </Button>
-            <div className="bg-white/80 backdrop-blur-sm p-2 rounded-lg flex items-center">
               <Star className="text-yellow-500 mr-2" />
               <span className="font-bold">Cat Happiness:</span>
               <Progress value={catHappiness} className="w-24 ml-2" />
-            </div>
+            </motion.div>
           </div>
         </motion.div>
 
@@ -175,25 +204,45 @@ const Index = () => {
           </TabsContent>
         </Tabs>
 
-        <Card className={`mb-8 ${isDarkMode ? 'bg-gray-800/80 text-white' : 'bg-white/80'} backdrop-blur-sm`}>
-          <CardHeader>
-            <CardTitle className="flex items-center text-2xl">
-              <Info className="mr-2" /> About Cats
-            </CardTitle>
-            <CardDescription className={isDarkMode ? 'text-gray-300' : ''}>Discover the world of our feline friends</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className={`text-lg ${isDarkMode ? 'text-gray-300' : 'text-gray-700'} mb-4`}>
-              Cats are enigmatic creatures that have captivated humans for millennia. Known for their independence, agility, and affectionate nature, these furry companions continue to charm us with their unique personalities and mysterious ways.
-            </p>
-          </CardContent>
-          <CardFooter>
-            <Button variant="outline" className="w-full group">
-              Learn More 
-              <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-            </Button>
-          </CardFooter>
-        </Card>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.6 }}
+        >
+          <Card className={`mb-8 ${isDarkMode ? 'bg-gray-800/80 text-white' : 'bg-white/80'} backdrop-blur-sm`}>
+            <CardHeader>
+              <CardTitle className="flex items-center text-2xl">
+                <Info className="mr-2" /> About Cats
+              </CardTitle>
+              <CardDescription className={isDarkMode ? 'text-gray-300' : ''}>Discover the world of our feline friends</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className={`text-lg ${isDarkMode ? 'text-gray-300' : 'text-gray-700'} mb-4`}>
+                Cats are enigmatic creatures that have captivated humans for millennia. Known for their independence, agility, and affectionate nature, these furry companions continue to charm us with their unique personalities and mysterious ways.
+              </p>
+            </CardContent>
+            <CardFooter>
+              <Button variant="outline" className="w-full group">
+                Learn More 
+                <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </Button>
+            </CardFooter>
+          </Card>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.8 }}
+        >
+          <Alert>
+            <Gift className="h-4 w-4" />
+            <AlertTitle>New Feature!</AlertTitle>
+            <AlertDescription>
+              You can now give treats to increase your cat's happiness. Try it out above!
+            </AlertDescription>
+          </Alert>
+        </motion.div>
       </div>
     </div>
   );
