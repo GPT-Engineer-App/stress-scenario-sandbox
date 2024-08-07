@@ -1,11 +1,14 @@
 import { useState, useEffect } from "react";
-import { Cat, Heart, Info, Paw, ArrowRight } from "lucide-react";
+import { Cat, Heart, Info, Paw, ArrowRight, Star, Moon, Sun } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import { Progress } from "@/components/ui/progress";
+import { Switch } from "@/components/ui/switch";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const catBreeds = [
   { name: "Siamese", description: "Vocal and social cats known for their distinctive color points.", image: "https://upload.wikimedia.org/wikipedia/commons/2/25/Siam_lilacpoint.jpg" },
@@ -26,25 +29,44 @@ const catFacts = [
 const Index = () => {
   const [likes, setLikes] = useState(0);
   const [currentFactIndex, setCurrentFactIndex] = useState(0);
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [catHappiness, setCatHappiness] = useState(50);
 
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentFactIndex((prevIndex) => (prevIndex + 1) % catFacts.length);
+      setCatHappiness(Math.floor(Math.random() * 100));
     }, 5000);
     return () => clearInterval(interval);
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-purple-100 to-pink-100 p-8">
+    <div className={`min-h-screen transition-colors duration-300 ${isDarkMode ? 'bg-gradient-to-b from-gray-900 to-purple-900 text-white' : 'bg-gradient-to-b from-purple-100 to-pink-100'} p-8`}>
       <div className="max-w-6xl mx-auto">
-        <motion.h1 
-          className="text-6xl font-bold mb-8 flex items-center justify-center text-purple-800"
-          initial={{ opacity: 0, y: -50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <Cat className="mr-4 h-16 w-16" /> Feline Fascination
-        </motion.h1>
+        <div className="flex justify-between items-center mb-8">
+          <motion.h1 
+            className="text-6xl font-bold flex items-center justify-center text-purple-800"
+            initial={{ opacity: 0, y: -50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <Cat className="mr-4 h-16 w-16" /> Feline Fascination
+          </motion.h1>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="flex items-center">
+                  <Sun className="h-4 w-4 mr-2" />
+                  <Switch checked={isDarkMode} onCheckedChange={setIsDarkMode} />
+                  <Moon className="h-4 w-4 ml-2" />
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Toggle dark mode</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
 
         <motion.div 
           className="relative mb-12"
@@ -57,12 +79,19 @@ const Index = () => {
             alt="A cute cat"
             className="mx-auto object-cover w-full h-[600px] rounded-xl shadow-2xl"
           />
-          <Button 
-            className="absolute bottom-4 right-4 bg-red-500 hover:bg-red-600 text-white"
-            onClick={() => setLikes(likes + 1)}
-          >
-            <Heart className="mr-2 h-4 w-4" /> Like ({likes})
-          </Button>
+          <div className="absolute bottom-4 right-4 flex items-center space-x-4">
+            <Button 
+              className="bg-red-500 hover:bg-red-600 text-white"
+              onClick={() => setLikes(likes + 1)}
+            >
+              <Heart className="mr-2 h-4 w-4" /> Like ({likes})
+            </Button>
+            <div className="bg-white/80 backdrop-blur-sm p-2 rounded-lg flex items-center">
+              <Star className="text-yellow-500 mr-2" />
+              <span className="font-bold">Cat Happiness:</span>
+              <Progress value={catHappiness} className="w-24 ml-2" />
+            </div>
+          </div>
         </motion.div>
 
         <motion.div
@@ -70,7 +99,7 @@ const Index = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.4 }}
         >
-          <Card className="mb-12 bg-white/80 backdrop-blur-sm">
+          <Card className={`mb-12 ${isDarkMode ? 'bg-gray-800/80' : 'bg-white/80'} backdrop-blur-sm`}>
             <CardHeader>
               <CardTitle className="flex items-center text-2xl">
                 <Info className="mr-2" /> Cat Fact of the Moment
@@ -84,7 +113,7 @@ const Index = () => {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
                   transition={{ duration: 0.5 }}
-                  className="text-xl text-gray-700 italic"
+                  className={`text-xl ${isDarkMode ? 'text-gray-300' : 'text-gray-700'} italic`}
                 >
                   "{catFacts[currentFactIndex]}"
                 </motion.p>
@@ -99,7 +128,7 @@ const Index = () => {
             <TabsTrigger value="breeds">Popular Breeds</TabsTrigger>
           </TabsList>
           <TabsContent value="characteristics">
-            <Card>
+            <Card className={isDarkMode ? 'bg-gray-800 text-white' : ''}>
               <CardHeader>
                 <CardTitle className="flex items-center text-2xl">
                   <Paw className="mr-2" /> Cat Characteristics
@@ -113,7 +142,9 @@ const Index = () => {
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ duration: 0.3, delay: index * 0.1 }}
-                      className="flex items-center bg-purple-100 p-3 rounded-lg"
+                      className={`flex items-center ${isDarkMode ? 'bg-purple-900' : 'bg-purple-100'} p-3 rounded-lg`}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
                     >
                       <Badge variant="secondary" className="mr-2">{index + 1}</Badge>
                       {trait}
@@ -144,21 +175,22 @@ const Index = () => {
           </TabsContent>
         </Tabs>
 
-        <Card className="mb-8 bg-white/80 backdrop-blur-sm">
+        <Card className={`mb-8 ${isDarkMode ? 'bg-gray-800/80 text-white' : 'bg-white/80'} backdrop-blur-sm`}>
           <CardHeader>
             <CardTitle className="flex items-center text-2xl">
               <Info className="mr-2" /> About Cats
             </CardTitle>
-            <CardDescription>Discover the world of our feline friends</CardDescription>
+            <CardDescription className={isDarkMode ? 'text-gray-300' : ''}>Discover the world of our feline friends</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-lg text-gray-700 mb-4">
+            <p className={`text-lg ${isDarkMode ? 'text-gray-300' : 'text-gray-700'} mb-4`}>
               Cats are enigmatic creatures that have captivated humans for millennia. Known for their independence, agility, and affectionate nature, these furry companions continue to charm us with their unique personalities and mysterious ways.
             </p>
           </CardContent>
           <CardFooter>
-            <Button variant="outline" className="w-full">
-              Learn More <ArrowRight className="ml-2 h-4 w-4" />
+            <Button variant="outline" className="w-full group">
+              Learn More 
+              <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Button>
           </CardFooter>
         </Card>
